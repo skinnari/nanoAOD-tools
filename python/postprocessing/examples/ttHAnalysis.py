@@ -7,6 +7,8 @@ from PhysicsTools.NanoAODTools.postprocessing.framework.postprocessor import Pos
 from PhysicsTools.NanoAODTools.postprocessing.framework.datamodel import Collection
 from PhysicsTools.NanoAODTools.postprocessing.framework.eventloop import Module
 
+from ROOT import gRandom, TH1, TH1D, TH1F, TH2F, cout, TFile, gSystem, TCanvas, TPad, gPad, gROOT, gStyle, THStack, TLegend, TLatex, TColor, TMath, TStyle
+
 # --------------------------------------------------------------------------
 # this is to run on just a small number of events
 # --------------------------------------------------------------------------
@@ -15,7 +17,11 @@ from optparse import OptionParser
 parser = OptionParser(usage="%prog [options]")
 parser.add_option("-N", "--max-entries", dest="maxEntries", type="long",  default=None, help="Maximum number of entries to process")
 (options, args) = parser.parse_args()
-    
+
+gStyle.SetOptStat(000000)
+gStyle.SetOptTitle(0)
+
+
 class ttHAnalysis(Module):
     
     def __init__(self):
@@ -28,7 +34,8 @@ class ttHAnalysis(Module):
         # here we can define some histograms
         # --------------------------------------------------------------------------
 
-        self.h_lep_pt = ROOT.TH1F('lep_pt', 'lep_pt', 100, 0, 100)
+        self.h_lep_pt = ROOT.TH1F('lep_pt', '; Lepton p_{T} (GeV); Number of leptons', 100, 0, 100)
+        self.h_lep_pt.SetLineColor(1)
         self.addObject(self.h_lep_pt)
         
     def analyze(self, event):
@@ -79,6 +86,18 @@ class ttHAnalysis(Module):
 
             return True
 
+
+    def endJob(self):
+
+        # --------------------------------------------------------------------------
+        # this is run after the events are processed, here we can make a canvas and draw the histgram
+        # --------------------------------------------------------------------------
+
+        c = TCanvas()
+        self.h_lep_pt.Draw()
+        c.SaveAs("test.pdf")
+
+        
 
 preselection=""
 files=["ttHTobb_ttTo2L2Nu_Skim.root"]
